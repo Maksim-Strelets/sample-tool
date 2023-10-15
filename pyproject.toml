@@ -1,0 +1,84 @@
+[tool.poetry]
+name = "test-project"
+version = "0.1.0"
+description = "Project Description"
+authors = ["maksim.strelets98@gmail.com"]
+readme = "readme.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10, <3.11"
+requests = "==2.31.0"
+aioboto3 = "==11.2.0"
+aiobotocore = "==2.5.0"
+fire = "==0.5.0"
+pydantic = "==1.10.7"
+python-dotenv = "==1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+async-asgi-testclient = "==1.4.11"
+aioresponses = "==0.7.4"
+moto = "==4.2.5"
+faker = "==18.3.1"
+autoflake = "==2.1.1"
+black = "==23.3.0"
+flake8 = "==6.0.0"
+flake8-bandit = "==4.1.1"
+httpx = "==0.24.0"
+isort = "==5.12.0"
+mypy = "==1.2.0"
+requests-mock = "==1.11.0"
+pytest = "==7.3.1"
+pytest-asyncio = "==0.21.0"
+pytest-cov = "==4.1.0"
+testfixtures = "==7.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+###########################
+#          Test           #
+###########################
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = "tests"
+addopts = "--cov=src --no-cov-on-fail --cov-report term-missing"
+
+[tool.coverage.run]
+omit = [
+  "*/tests/*",
+]
+
+###########################
+#         Linters         #
+###########################
+[tool.black]
+target-version = ["py310"]
+line-length = 99
+
+[tool.isort]
+profile = "black"
+skip = ["migrations", ".venv"]
+force_grid_wrap = 2
+multi_line_output = 3
+line_length = 99
+float_to_top=true
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B113", "B311"]
+
+[tool.mypy]
+disallow_untyped_defs = true
+strict_optional = true
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = [
+    "envparse",
+    "requests",
+    "aioboto3",
+    "dotenv",
+]
+ignore_missing_imports = true

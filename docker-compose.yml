@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  app-base:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: base
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    working_dir: /opt/app
+    environment:
+      - LOG_LEVEL=DEBUG
+
+  app-inspect:
+    extends:
+      service: app-base
+    build:
+      cache_from:
+        - ${DOCKER_TEST_IMAGE:-test-project:test-latest}
+      target: test
+    image: ${DOCKER_TEST_IMAGE:-test-project:test-latest}
+    container_name: test-project
+    volumes:
+      - .:/opt/app
+
+  app-test:
+    extends:
+      service: app-inspect
+
+  localstack-base:
+    image: localstack/localstack:1.3
+    expose:
+      - 4566
+    env_file:
+      - .env.localstack
+    environment:
+      - PERSISTENCE=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    tmpfs:
+      - /var/lib/localstack/state
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./initaws:/etc/localstack/init/ready.d
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:4566/health?reload" ]
+      interval: 5s
+      timeout: 10s
+      start_period: 10s
+
+  localstack:
+    extends:
+      service: localstack-base
+    environment:
+      - HOSTNAME_EXTERNAL=localstack
+
+  localstack-test:
+    extends:
+      service: localstack-base
+    environment:
+      - HOSTNAME_EXTERNAL="localstack-test"
+
