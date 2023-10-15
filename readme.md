@@ -16,7 +16,7 @@ S3_BUCKET_NAME=<name>
 Run command
 ```
 docker-compose build
-docker-compose run --rm /bin/bash "python cli.py upload_to_s3_script <URL>"
+docker-compose run app-base /bin/bash -c "python cli.py upload_to_s3_script <URL>"
 ```
 
 Run tests
